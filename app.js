@@ -9,7 +9,7 @@ app.get('/api', (req, res) => {
     });
 });
 
-app.post('/api/posts', (req, res) => {
+app.post('/api/posts', verifyToken, (req, res) => {
     res.json({
         message: 'Post created...'
     });
@@ -29,5 +29,24 @@ app.post('/api/login', (req, res) => {
         });
     });
 });
+
+function verifyToken(req, res, next) {
+    //get auth header value
+    const bearerHeader = req.headers['authorization'];
+    //check if header is undefined
+    if(typeof bearerHeader != 'undefined') {
+        //split at the space
+        const bearer = bearerHeader.split(' ');
+        //get token from array
+        const bearerToken = bearer[1];
+        //set the token
+        req.token = bearerToken;
+        //next middleware
+        next();
+    } else {
+        //forbidden
+        res.sendStatus(403);
+    }
+}
 
 app.listen(5005, () => console.log('Server started on port 5000'));
